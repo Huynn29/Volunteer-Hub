@@ -28,63 +28,89 @@ const handleWatchDetail = (id) => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-[300px]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-800"></div>
+      <div className="flex justify-center items-center h-[350px]">
+        <div className="w-10 h-10 border-4 border-rose-200 border-t-rose-600 rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
     <>
-      <div>
-        <h2 className="text-xl font-bold mb-4">Sự kiện đã bị từ chối</h2>
-        <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="flex flex-col gap-6">
+        <div className="pb-4 border-b border-slate-100 flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Sự kiện bị từ chối</h1>
+            <p className="text-xs text-slate-500 mt-1">Yêu cầu tham gia chưa được người tổ chức chấp thuận</p>
+          </div>
+          <span className="text-xs font-bold px-3 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-100">
+            {events.length} Bị từ chối
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {events.length === 0 ? (
-            <p className="font-bold text-2xl">Không có sự kiện nào</p>
+            <div className="col-span-full py-16 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+              <p className="font-bold text-slate-700 text-base">Không có yêu cầu nào bị từ chối</p>
+            </div>
           ) : (
             events
-              .filter(ev => ev)
-              .map((event) => (
-                <div
-                  key={event?.eventId._id}
-                  onClick={() => handleWatchDetail(event?.eventId._id)}
-                  className="relative flex flex-col gap-2 p-4 bg-white shadow rounded-lg border border-gray-200 hover:scale-105 hover:bg-gray-200 transition-all duration-300 cursor-pointer"
-                >
-                  {event?.eventId?.banner ? (
-                    <img
-                      src={event?.eventId.banner}
-                      alt={event?.eventId._id}
-                      className="w-full h-[160px] rounded-xl object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-40 flex items-center justify-center bg-gray-100 text-gray-400 rounded-xl">
-                      Không có ảnh
+              .filter((ev) => ev)
+              .map((event) => {
+                const evData = event?.eventId || event;
+                return (
+                  <div
+                    key={evData?._id}
+                    onClick={() => handleWatchDetail(evData?._id)}
+                    className="group relative flex flex-col bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer"
+                  >
+                    {/* Banner */}
+                    <div className="relative w-full h-[180px] overflow-hidden bg-slate-100">
+                      {evData?.banner ? (
+                        <img
+                          src={evData.banner}
+                          alt={evData?.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs font-medium">
+                          Không có ảnh banner
+                        </div>
+                      )}
+
+                      {evData?.category && (
+                        <span className="absolute top-3 left-3 bg-slate-900/75 backdrop-blur-md text-white text-[11px] font-semibold px-3 py-1 rounded-full shadow-sm">
+                          {evData.category}
+                        </span>
+                      )}
+
+                      <span className="absolute top-3 right-3 bg-rose-600/90 backdrop-blur-md text-white text-[11px] font-semibold px-3 py-1 rounded-full shadow-sm">
+                        ✕ Bị từ chối
+                      </span>
                     </div>
-                  )}
-                  <div className="flex flex-wrap gap-5 font-bold items-center ">
-                    <div>{convertDate(event?.eventId.startDate)}</div>
-                    <div>
-                      <FaArrowRightLong />
+
+                    {/* Body */}
+                    <div className="p-5 flex flex-col flex-1 gap-2.5">
+                      <div className="flex items-center gap-2 text-xs font-semibold text-indigo-600 bg-indigo-50/60 px-2.5 py-1 rounded-lg w-fit">
+                        <span>{convertDate(evData?.startDate)}</span>
+                        <FaArrowRightLong className="text-[10px]" />
+                        <span>{convertDate(evData?.endDate)}</span>
+                      </div>
+
+                      <h3 className="font-bold text-base text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                        {evData?.title}
+                      </h3>
+
+                      <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                        {evData?.description}
+                      </p>
+
+                      <div className="text-xs text-slate-400 font-medium truncate mt-auto pt-2 border-t border-slate-100">
+                        📍 {evData?.location}
+                      </div>
                     </div>
-                    <div>{convertDate(event?.eventId.endDate)}</div>
                   </div>
-                  <div className="font-bold text-[20px]">
-                    {event?.eventId.title}
-                  </div>
-                  <div className="text-[18px]">{event?.eventId.description}</div>
-                  <div className="text-gray-700 text-[16px]">
-                    {event?.eventId.location}
-                  </div>
-                  <div className="text-gray-500 text-[14px]">
-                    {event?.eventId.category}
-                  </div>
-                  <div className="absolute top-1 right-1 flex justify-center items-center mt-auto">
-                    <div className="px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-600 ">
-                      Đã bị từ chối duyệt tham gia
-                    </div>
-                  </div>
-                </div>
-              ))
+                );
+              })
           )}
         </div>
       </div>

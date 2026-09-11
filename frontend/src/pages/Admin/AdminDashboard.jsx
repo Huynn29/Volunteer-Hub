@@ -1,28 +1,57 @@
 import { useEffect, useState } from "react";
 import { FaUsers, FaRegNewspaper, FaCalendarAlt } from "react-icons/fa";
+import { MdTrendingUp } from "react-icons/md";
 import toast from "react-hot-toast";
 import { getAllUser } from "../../api/user.api";
 import { getAllEvent } from "../../api/event.api";
 import { getAllPost } from "../../api/post.api";
 import { getTimeAgo } from "../../utils";
 import {
-  LineChart,
-  Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   Tooltip,
   CartesianGrid,
   ResponsiveContainer,
+  Cell,
 } from "recharts";
 
-const AdminDashboard = () => {
-  const [stats, setStats] = useState({
-    users: 0,
-    events: 0,
-    posts: 0,
-  });
-  const [loading, setLoading] = useState(true);
+const STAT_CARDS = [
+  {
+    key: "users",
+    label: "Người dùng",
+    icon: FaUsers,
+    gradient: "from-indigo-500 to-indigo-600",
+    bg: "bg-indigo-50",
+    text: "text-indigo-600",
+    border: "border-indigo-100",
+  },
+  {
+    key: "events",
+    label: "Sự kiện",
+    icon: FaCalendarAlt,
+    gradient: "from-emerald-500 to-emerald-600",
+    bg: "bg-emerald-50",
+    text: "text-emerald-600",
+    border: "border-emerald-100",
+  },
+  {
+    key: "posts",
+    label: "Bài đăng",
+    icon: FaRegNewspaper,
+    gradient: "from-pink-500 to-pink-600",
+    bg: "bg-pink-50",
+    text: "text-pink-600",
+    border: "border-pink-100",
+  },
+];
 
+const BAR_COLORS = ["#6366F1", "#10B981", "#EC4899"];
+
+const AdminDashboard = () => {
+  const [stats, setStats] = useState({ users: 0, events: 0, posts: 0 });
+  const [loading, setLoading] = useState(true);
   const [recentActivities, setRecentActivities] = useState([]);
   const [chartData, setChartData] = useState([]);
 
@@ -50,39 +79,50 @@ const AdminDashboard = () => {
         posts: posts.length,
       });
 
-      // tạo danh sách hoạt động gần đây
       const latestEvents = events
         .slice(-3)
         .reverse()
-        .map(
-          (e) =>
-            `📅 Sự kiện "${e.title}" vừa được thêm lúc ${getTimeAgo(
-              e.createdAt
-            )}.`
-        );
+        .map((e) => ({
+          type: "event",
+          text: `Sự kiện "${e.title}" vừa được thêm ${getTimeAgo(e.createdAt)}.`,
+          time: e.createdAt,
+        }));
+
       const latestPosts = posts
         .slice(-3)
         .reverse()
-      .map((p) => {
-        const shortContent =
-          p.content.length > 50 ? p.content.slice(0, 50) + "..." : p.content;
-        return `📰 Bài viết "${shortContent}" vừa được đăng ${getTimeAgo(
-          p.createdAt
-        )}.`;
-      });
+        .map((p) => {
+          const short =
+            p.content.length > 50
+              ? p.content.slice(0, 50) + "..."
+              : p.content;
+
+          return {
+            type: "post",
+            text: `Bài viết "${short}" vừa được đăng ${getTimeAgo(
+              p.createdAt
+            )}.`,
+            time: p.createdAt,
+          };
+        });
+
       const latestUsers = users
         .slice(-3)
         .reverse()
-        .map(
-          (u) =>
-            `👤 Người dùng mới: ${u.name} vừa tham gia ${getTimeAgo(
-              u.createdAt
-            )}.`
-        );
+        .map((u) => ({
+          type: "user",
+          text: `Người dùng mới: ${u.name} vừa tham gia ${getTimeAgo(
+            u.createdAt
+          )}.`,
+          time: u.createdAt,
+        }));
 
-      setRecentActivities([...latestEvents, ...latestPosts, ...latestUsers]);
+      setRecentActivities([
+        ...latestEvents,
+        ...latestPosts,
+        ...latestUsers,
+      ]);
 
-      // dữ liệu chart demo
       setChartData([
         { name: "Người dùng", value: users.length },
         { name: "Sự kiện", value: events.length },
@@ -95,128 +135,174 @@ const AdminDashboard = () => {
       setLoading(false);
     }
   };
+
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-[300px]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-800"></div>
+      <div className="flex justify-center items-center h-[350px]">
+        <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
       </div>
     );
   }
+
+  const typeIcon = {
+    event: "📅",
+    post: "📰",
+    user: "👤",
+  };
+
+  const typeColor = {
+    event: "bg-indigo-50 text-indigo-600",
+    post: "bg-pink-50 text-pink-600",
+    user: "bg-emerald-50 text-emerald-600",
+  };
+
   return (
-    <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-gray-800">
-        📊 Bảng điều khiển tổng quan
-      </h2>
+    <div className="flex flex-col gap-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+          Tổng quan hệ thống
+        </h1>
 
-      {/* Tổng quan */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-5 rounded-2xl shadow flex items-center gap-4">
-          <FaUsers className="text-blue-500 text-3xl" />
-          <div>
-            <p className="text-gray-500 text-sm">Tổng người dùng</p>
-            <p className="text-xl font-semibold">{stats.users}</p>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl shadow flex items-center gap-4">
-          <FaCalendarAlt className="text-green-500 text-3xl" />
-          <div>
-            <p className="text-gray-500 text-sm">Tổng sự kiện</p>
-            <p className="text-xl font-semibold">{stats.events}</p>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl shadow flex items-center gap-4">
-          <FaRegNewspaper className="text-purple-500 text-3xl" />
-          <div>
-            <p className="text-gray-500 text-sm">Tổng bài đăng</p>
-            <p className="text-xl font-semibold">{stats.posts}</p>
-          </div>
-        </div>
+        <p className="text-xs text-slate-500 mt-1">
+          Thống kê toàn bộ dữ liệu VolunteerHub theo thời gian thực
+        </p>
       </div>
 
-     
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        {STAT_CARDS.map((card) => {
+          const Icon = card.icon;
 
-      <div className="bg-white p-5 rounded-2xl shadow">
-        <h3 className="text-lg font-semibold text-gray-700 mb-4">
-          Hoạt động gần đây
-        </h3>
+          return (
+            <div
+              key={card.key}
+              className={`relative bg-white rounded-2xl border ${card.border} p-5 overflow-hidden shadow-xs hover:shadow-lg transition-shadow`}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-slate-500 font-medium">
+                    {card.label}
+                  </p>
 
-        {recentActivities.length === 0 ? (
-          <p className="text-gray-500 text-sm">Không có hoạt động mới.</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Sự kiện */}
-            <div>
-              <h4 className="font-semibold text-green-600 mb-2 flex items-center gap-2">
-                <FaCalendarAlt /> Sự kiện
-              </h4>
-              <ul className="text-gray-700 text-sm space-y-2">
-                {recentActivities
-                  .filter((a) => a.startsWith("📅"))
-                  .map((a, i) => (
-                    <li key={i} className="border-b border-gray-100 pb-1">
-                      {a}
-                    </li>
-                  ))}
-              </ul>
+                  <p className="text-3xl font-extrabold text-slate-900 mt-1 tracking-tight">
+                    {stats[card.key]}
+                  </p>
+
+                  <p className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
+                    <MdTrendingUp className="text-emerald-500" />
+                    Tổng toàn bộ
+                  </p>
+                </div>
+
+                <div
+                  className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${card.gradient} flex items-center justify-center shadow-md`}
+                >
+                  <Icon className="text-white text-xl" />
+                </div>
+              </div>
+
+              {/* decorative blob */}
+              <div
+                className={`absolute -bottom-4 -right-4 w-20 h-20 rounded-full opacity-10 bg-gradient-to-br ${card.gradient}`}
+              />
             </div>
-
-            {/* Bài viết */}
-            <div>
-              <h4 className="font-semibold text-purple-600 mb-2 flex items-center gap-2">
-                <FaRegNewspaper /> Bài viết
-              </h4>
-              <ul className="text-gray-700 text-sm space-y-2">
-                {recentActivities
-                  .filter((a) => a.startsWith("📰"))
-                  .map((a, i) => (
-                    <li key={i} className="border-b border-gray-100 pb-1">
-                      {a}
-                    </li>
-                  ))}
-              </ul>
-            </div>
-
-            {/* Người dùng */}
-            <div>
-              <h4 className="font-semibold text-blue-600 mb-2 flex items-center gap-2">
-                <FaUsers /> Người dùng
-              </h4>
-              <ul className="text-gray-700 text-sm space-y-2">
-                {recentActivities
-                  .filter((a) => a.startsWith("👤"))
-                  .map((a, i) => (
-                    <li key={i} className="border-b border-gray-100 pb-1">
-                      {a}
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          </div>
-        )}
+          );
+        })}
       </div>
 
-       {/* Biểu đồ tổng quan */}
-      <div className="bg-white p-5 rounded-2xl shadow">
-        <h3 className="text-lg font-semibold text-gray-700 mb-4">
-          Biểu đồ thống kê
-        </h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="value"
-              stroke="#3b82f6"
-              strokeWidth={2}
-              dot={{ r: 6 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+      {/* Chart + Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Bar Chart */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
+          <div className="mb-4">
+            <h3 className="font-bold text-sm text-slate-900">
+              Biểu đồ thống kê
+            </h3>
+
+            <p className="text-xs text-slate-400">
+              Số lượng theo từng danh mục
+            </p>
+          </div>
+
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={chartData} barSize={40}>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                stroke="#f1f5f9"
+              />
+
+              <XAxis
+                dataKey="name"
+                tick={{ fontSize: 11, fill: "#94a3b8" }}
+                axisLine={false}
+                tickLine={false}
+              />
+
+              <YAxis
+                tick={{ fontSize: 11, fill: "#94a3b8" }}
+                axisLine={false}
+                tickLine={false}
+              />
+
+              <Tooltip
+                contentStyle={{
+                  background: "#fff",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "12px",
+                  fontSize: "12px",
+                }}
+              />
+
+              <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                {chartData.map((_, idx) => (
+                  <Cell
+                    key={idx}
+                    fill={BAR_COLORS[idx % BAR_COLORS.length]}
+                  />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
+          <div className="mb-4">
+            <h3 className="font-bold text-sm text-slate-900">
+              Hoạt động gần đây
+            </h3>
+
+            <p className="text-xs text-slate-400">
+              9 hoạt động mới nhất từ hệ thống
+            </p>
+          </div>
+
+          <ul className="flex flex-col gap-2.5 max-h-[200px] overflow-y-auto pr-1">
+            {recentActivities.length === 0 ? (
+              <li className="text-xs text-slate-400 text-center py-4">
+                Chưa có hoạt động nào
+              </li>
+            ) : (
+              recentActivities.map((a, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span
+                    className={`shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-sm ${
+                      typeColor[a.type]
+                    }`}
+                  >
+                    {typeIcon[a.type]}
+                  </span>
+
+                  <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
+                    {a.text}
+                  </p>
+                </li>
+              ))
+            )}
+          </ul>
+        </div>
       </div>
     </div>
   );

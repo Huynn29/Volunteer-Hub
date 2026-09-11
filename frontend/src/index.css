@@ -1,5 +1,26 @@
 @import "tailwindcss";
 
+/* Global font */
+*, *::before, *::after {
+  font-family: "Inter", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
 button {
   @apply cursor-pointer;
 }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+

@@ -376,205 +376,264 @@ const handleOutEvent = async (eventId) => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-[300px]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-800"></div>
+      <div className="flex justify-center items-center h-[350px]">
+        <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
       </div>
     );
   }
+
   return (
     <>
       {event && (
-        <div className="flex flex-col gap-2 ">
-          <div className="flex flex-col gap-5">
-            <div className="flex flex-wrap gap-5 items-center text-xl text-red-600">
-              <div>{convertDate(event.startDate)}</div>
-              <div>
-                <FaArrowRightLong />
+        <div className="flex flex-col gap-6">
+          {/* Header Sự kiện */}
+          <div className="flex flex-col gap-4">
+            {/* Banner nếu có */}
+            {event?.banner && (
+              <div className="w-full h-[240px] sm:h-[320px] rounded-3xl overflow-hidden bg-slate-100 shadow-sm border border-slate-200/80">
+                <img
+                  src={event.banner}
+                  alt={event.title}
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <div>{convertDate(event.endDate)}</div>
+            )}
+
+            <div className="flex flex-wrap gap-4 items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-semibold text-indigo-600 bg-indigo-50/80 px-3 py-1.5 rounded-xl border border-indigo-100/60 w-fit">
+                <span>{convertDate(event.startDate)}</span>
+                <FaArrowRightLong className="text-[10px]" />
+                <span>{convertDate(event.endDate)}</span>
+              </div>
+
+              {event?.category && (
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-slate-900 text-white shadow-xs">
+                  {event.category}
+                </span>
+              )}
             </div>
-            <div className="text-3xl font-bold">{event.title}</div>
-            <div className="text-xl text-gray-500">{event.location}</div>
+
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              {event.title}
+            </h1>
+
+            <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+              <FaLocationDot className="text-pink-500 text-sm" />
+              <span>{event.location}</span>
+            </div>
           </div>
-          <div className="h-[1px] bg-gray-300 w-full"></div>
-          <div className="flex flex-wrap justify-between items-center">
-            <div className="flex gap-2">
-              <div
+
+          {/* Navigation Bar chi tiết: Tab & Trạng thái tham gia */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-100">
+            {/* Tabs */}
+            <div className="flex items-center gap-2">
+              <button
                 onClick={() => setIsSelectIntrodution(true)}
-                className={`px-2 py-4 hover:bg-gray-200 cursor-pointer transition duration-300 rounded ${
+                className={`px-4 py-2 text-xs font-semibold rounded-xl transition-all cursor-pointer ${
                   isSelectIntrodution
-                    ? "text-blue-500 underline underline-offset-10"
-                    : ""
+                    ? "bg-indigo-50 text-indigo-600 shadow-2xs"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                 }`}
               >
                 Giới thiệu
-              </div>
-              <div
+              </button>
+              <button
                 onClick={() => setIsSelectIntrodution(false)}
-                className={`px-2 py-4 hover:bg-gray-200 cursor-pointer transition duration-300 rounded ${
+                className={`px-4 py-2 text-xs font-semibold rounded-xl transition-all cursor-pointer ${
                   !isSelectIntrodution
-                    ? "text-blue-500 underline underline-offset-10"
-                    : ""
+                    ? "bg-indigo-50 text-indigo-600 shadow-2xs"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                 }`}
               >
-                Thảo luận
-              </div>
+                Thảo luận ({posts.length})
+              </button>
             </div>
-            <div className="flex flex-wrap gap-4 items-center">
-{isPending ? (
-  <div className="ml-4 px-4 py-2 w-[220px] text-center bg-amber-200 rounded-2xl cursor-default">
-    Đang chờ duyệt
-  </div>
-) : isRejected ? (
-  <div className="ml-4 px-4 py-2 w-[220px] text-center bg-red-300 rounded-2xl cursor-default">
-    Bị từ chối
-  </div>
-) : isCompleted ? (
-  <div className="ml-4 px-4 py-2 w-[220px] text-center bg-blue-300 rounded-2xl cursor-default">
-    Đã hoàn thành
-  </div>
-) : isJoined ? (
-  <div className="flex gap-2">
-    <div className="ml-4 px-4 py-2 w-[190px] text-center bg-green-400 rounded-2xl cursor-default">
-      Đang tham gia
-    </div>
-    <button
-      onClick={() => handleOutEvent(event._id)}
-      className="px-4 py-2 bg-red-400 text-white rounded-2xl hover:bg-red-500 transition duration-300"
-    >
-      Rời sự kiện
-    </button>
-  </div>
-) : (
-  <div
-    onClick={() => handleRegisterJoinEvent(event._id)}
-    className="ml-4 px-4 py-2 w-[200px] text-center bg-gray-200 rounded-2xl hover:bg-gray-300 cursor-pointer transition duration-300"
-  >
-    Đăng ký tham gia
-  </div>
-)}
 
+            {/* Trạng thái / Hành động Tham gia */}
+            <div className="flex items-center gap-3 flex-wrap">
+              {isPending ? (
+                <div className="px-4 py-2 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-xl cursor-default">
+                  ⏳ Đang chờ duyệt
+                </div>
+              ) : isRejected ? (
+                <div className="px-4 py-2 text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 rounded-xl cursor-default">
+                  ✕ Bị từ chối
+                </div>
+              ) : isCompleted ? (
+                <div className="px-4 py-2 text-xs font-semibold bg-sky-50 text-sky-700 border border-sky-200 rounded-xl cursor-default">
+                  ✓ Đã hoàn thành
+                </div>
+              ) : isJoined ? (
+                <div className="flex items-center gap-2">
+                  <div className="px-4 py-2 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl cursor-default">
+                    ✓ Đang tham gia
+                  </div>
+                  <button
+                    onClick={() => handleOutEvent(event._id)}
+                    className="px-3.5 py-2 text-xs font-semibold bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl transition-colors cursor-pointer"
+                  >
+                    Rời sự kiện
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => handleRegisterJoinEvent(event._id)}
+                  className="px-5 py-2 text-xs font-semibold text-white bg-gradient-to-r from-[#6366F1] to-[#EC4899] shadow-md shadow-indigo-500/20 hover:opacity-95 rounded-xl transition-all cursor-pointer"
+                >
+                  Đăng ký tham gia
+                </button>
+              )}
 
-              {/* Tìm kiếm */}
-              <div className="relative w-[220px] max-w-sm p-4 items-center">
-                <FaSearch className="absolute left-7 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-10 p-2 border rounded-2xl focus:outline-none bg-gray-200"
-                />
-              </div>
+              {/* Tìm kiếm bài viết trong sự kiện */}
+              {!isSelectIntrodution && (
+                <div className="relative w-48">
+                  <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs" />
+                  <input
+                    type="text"
+                    placeholder="Tìm bài viết..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full bg-slate-50 pl-8 pr-3 py-2 border border-slate-200/80 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all"
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
       )}
+
+      {/* NỘI DUNG TAB */}
       {isSelectIntrodution ? (
-        <div className="mt-5 pt-15 border-t-1 border-gray-200 grid grid-cols-1 md:grid-cols-[52%_45%] gap-5">
-          <div className="flex flex-col gap-4 p-5 border border-gray-300 rounded-2xl">
-            <div className="text-2xl font-bold">Chi tiết</div>
-            <div className="pl-4 flex flex-col gap-4">
-              <div className="flex items-center gap-4 text-[18px]">
-                <div>
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Card Chi tiết */}
+          <div className="flex flex-col gap-4 p-6 bg-slate-50/50 border border-slate-200/80 rounded-2xl shadow-2xs">
+            <div className="text-base font-bold text-slate-900 border-b border-slate-200/60 pb-3">
+              Thông tin chi tiết
+            </div>
+            <div className="flex flex-col gap-3.5 text-xs">
+              <div className="flex items-center gap-3 text-slate-700">
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 text-sm">
                   <FaUsers />
                 </div>
-                <div> {event.numOfUser} người đã tương tác </div>
-              </div>
-              <div className="flex items-center gap-4 text-[18px]">
-                <div>
-                  <FaUser />
-                </div>
-                <div>
-                  Sự kiện của
-                  <strong> {event?.createBy?.name || "Ẩn danh"}</strong>
-                </div>
+                <span><strong>{event.numOfUser || 0}</strong> người đã tương tác với sự kiện</span>
               </div>
 
-              <div className="flex items-center gap-4 text-[18px]">
-                <div>
+              <div className="flex items-center gap-3 text-slate-700">
+                <div className="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center text-pink-600 text-sm">
+                  <FaUser />
+                </div>
+                <span>Tổ chức bởi <strong>{event?.createBy?.name || "Ẩn danh"}</strong></span>
+              </div>
+
+              <div className="flex items-center gap-3 text-slate-700">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 text-sm">
                   <FaLocationDot />
                 </div>
-                <div>{event.location} </div>
+                <span>{event.location}</span>
               </div>
-              <div className="flex items-center gap-4 text-[18px]">
-                <div>
+
+              <div className="flex items-start gap-3 text-slate-600 pt-2 border-t border-slate-200/60 leading-relaxed">
+                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 text-sm shrink-0">
                   <MdDescription />
                 </div>
-                <div>{event.description} </div>
+                <p className="mt-1">{event.description}</p>
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-4 p-5 border border-gray-300 rounded-2xl">
-            <div className="font-bold text-2xl">Số lượng người</div>
-            <div className="flex justify-around items-center">
-              <div className="flex flex-col gap-2 items-center  text-center">
-                <div className="text-2xl font-bold">
-                  {event.numOfPendingUser}
-                </div>
-                <div className="text-[18px]">Người chờ duyệt tham gia</div>
+
+          {/* Card Thống kê Tham gia */}
+          <div className="flex flex-col gap-4 p-6 bg-slate-50/50 border border-slate-200/80 rounded-2xl shadow-2xs">
+            <div className="text-base font-bold text-slate-900 border-b border-slate-200/60 pb-3 flex justify-between items-center">
+              <span>Thống kê tình nguyện viên</span>
+              <button
+                onClick={fetchParticipants}
+                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors cursor-pointer"
+              >
+                Xem danh sách →
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-4 py-4">
+              <div className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-slate-200/60 text-center shadow-2xs">
+                <span className="text-2xl font-extrabold text-amber-500">
+                  {event.numOfPendingUser || 0}
+                </span>
+                <span className="text-[11px] font-medium text-slate-500 mt-1">
+                  Đang chờ duyệt
+                </span>
               </div>
-              <div className="flex flex-col items-center text-center gap-2 ">
-                <div className="text-2xl font-bold">
-                  <div>{(event.numOfJoiningUser || 0) + 1}</div>
-                </div>
-                <div className="text-[18px]">Người đang tham gia </div>
+
+              <div className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-slate-200/60 text-center shadow-2xs">
+                <span className="text-2xl font-extrabold text-emerald-600">
+                  {(event.numOfJoiningUser || 0) + 1}
+                </span>
+                <span className="text-[11px] font-medium text-slate-500 mt-1">
+                  Đang tham gia
+                </span>
               </div>
             </div>
-            {(user?._id === event?.createBy?._id || user?.role === "admin") && (
-  <button
-    onClick={fetchParticipants}
-    className="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600"
-  >
-    Xem danh sách người tham gia
-  </button>
-)}
-{showParticipants && (
-  <div className="fixed inset-0 bg-[rgba(0,0,0,0.3)] flex justify-center items-center z-50">
-    <div className="bg-white rounded-xl w-96 p-6">
-      <h2 className="font-bold text-xl mb-4">Người tham gia</h2>
-      <ul className="flex flex-col gap-3 max-h-80 overflow-y-auto">
-        {participants && participants.length > 0 ? (
-          participants.map((p) => (
-            <li key={p._id} className="flex items-center gap-3">
-              {p.userId.avatar ? (
-                <img src={p.userId.avatar} className="w-10 h-10 rounded-full object-cover" />
-              ) : (
-                <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                  {p.userId.name[0]}
-                </div>
-              )}
-              <span>{p.userId.name}</span>
-            </li>
-          ))
-        ) : (
-          <li className="text-gray-500">Chưa có người tham gia</li>
-        )}
-      </ul>
-      <button
-        onClick={() => setShowParticipants(false)}
-        className="mt-4 px-4 py-2 bg-gray-200 rounded-xl hover:bg-gray-300"
-      >
-        Đóng
-      </button>
-    </div>
-  </div>
-)}
 
-            <div className="font-bold text-2xl">Người tổ chức sự kiện</div>
-            <div className="flex items-center gap-2 text-[18px]">
-              {event?.createBy?.avatar ? (
-                <img
-                  src={event?.createBy?.avatar}
-                  alt="avatar"
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-              ) : (
-                <div className="p-1 text-3xl rounded-full">
-                  <CgProfile />
+            {(user?._id === event?.createBy?._id || user?.role === "admin") && (
+              <button
+                onClick={fetchParticipants}
+                className="w-full py-2.5 px-4 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-xl text-xs font-semibold hover:bg-indigo-100 transition-colors cursor-pointer"
+              >
+                Xem danh sách người tham gia
+              </button>
+            )}
+
+            {showParticipants && (
+              <div className="fixed inset-0 backdrop-blur-md bg-slate-950/50 flex justify-center items-center z-50 p-4">
+                <div className="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl border border-slate-100 flex flex-col max-h-[80vh]">
+                  <div className="flex justify-between items-center pb-3 border-b border-slate-100 mb-4">
+                    <h3 className="font-bold text-base text-slate-900">Danh sách tình nguyện viên</h3>
+                    <button
+                      onClick={() => setShowParticipants(false)}
+                      className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-sm cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <ul className="flex flex-col gap-2.5 overflow-y-auto flex-1 pr-1">
+                    {participants && participants.length > 0 ? (
+                      participants.map((p) => (
+                        <li key={p._id} className="flex items-center gap-3 p-2 rounded-xl bg-slate-50">
+                          {p.userId?.avatar ? (
+                            <img src={p.userId.avatar} className="w-9 h-9 rounded-xl object-cover ring-1 ring-indigo-500/20" />
+                          ) : (
+                            <div className="w-9 h-9 bg-indigo-100 text-indigo-600 font-bold rounded-xl flex items-center justify-center text-xs">
+                              {p.userId?.name ? p.userId.name[0] : "U"}
+                            </div>
+                          )}
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-xs font-semibold text-slate-800 truncate">{p.userId?.name}</span>
+                            <span className="text-[10px] text-slate-400 capitalize">{p.role || "Tình nguyện viên"}</span>
+                          </div>
+                        </li>
+                      ))
+                    ) : (
+                      <li className="text-xs text-slate-400 text-center py-6">Chưa có người tham gia</li>
+                    )}
+                  </ul>
                 </div>
-              )}
-              <div> {event?.createBy?.name} </div>
+              </div>
+            )}
+
+            <div className="pt-3 border-t border-slate-200/60 flex flex-col gap-2">
+              <span className="font-bold text-xs text-slate-700">Đơn vị / Người tổ chức</span>
+              <div className="flex items-center gap-3">
+                {event?.createBy?.avatar ? (
+                  <img
+                    src={event?.createBy?.avatar}
+                    alt="avatar"
+                    className="w-9 h-9 rounded-xl object-cover ring-2 ring-indigo-500/20"
+                  />
+                ) : (
+                  <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 text-xl">
+                    <CgProfile />
+                  </div>
+                )}
+                <span className="text-xs font-semibold text-slate-800">{event?.createBy?.name || "Ẩn danh"}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -582,12 +641,10 @@ const handleOutEvent = async (eventId) => {
         <>
           <button
             onClick={handleOpenCreatePost}
-            className="flex gap-2 justify-center w-[200px] items-center my-10 py-5 border border-gray-400 rounded-2xl"
+            className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#6366F1] to-[#EC4899] text-white text-xs font-semibold shadow-md shadow-indigo-500/20 hover:opacity-95 transition-all my-6 cursor-pointer w-fit"
           >
-            <div>
-              <FaPlus />
-            </div>
-            <div>Tạo bài viết mới</div>
+            <FaPlus />
+            <span>Tạo bài viết mới</span>
           </button>
 
           {openCreateModel && (

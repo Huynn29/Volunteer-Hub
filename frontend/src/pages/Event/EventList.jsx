@@ -176,153 +176,195 @@ const EventList = () => {
   });
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-[300px]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-800"></div>
+      <div className="flex justify-center items-center h-[350px]">
+        <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
       </div>
     );
   }
 
-
   return (
     <>
-      <div className="flex flex-col gap-4">
-        <div className="font-bold text-3xl">Khám phá sự kiện</div>
-        <div className="flex gap-2 justify-between">
-          <div className="flex gap-2 justify-between">
+      <div className="flex flex-col gap-6">
+        {/* Header trang */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+          <div>
+            <h1 className="font-extrabold text-2xl text-slate-900 tracking-tight">Khám phá sự kiện</h1>
+            <p className="text-xs text-slate-500 mt-1">
+              Tham gia cùng cộng đồng kết nối hơn 50,000 tình nguyện viên toàn quốc
+            </p>
+          </div>
+
+          {/* Bộ lọc Danh mục & Thời gian */}
+          <div className="flex items-center gap-2.5 flex-wrap">
+            {/* Dropdown Danh mục */}
             <div className="relative" ref={categoryRef}>
               <button
                 onClick={() => handleToggle("category")}
-                className="flex p-2 gap-2 items-center text-[18px] bg-gray-200 rounded-2xl cursor-pointer transition focus:bg-amber-200 hover:bg-gray-300 duration-300"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-50 border border-slate-200/80 hover:bg-white text-slate-700 transition-colors shadow-2xs cursor-pointer"
               >
-                <div>
-                  <TbCategoryFilled />
-                </div>
-                <div>Danh mục</div>
+                <TbCategoryFilled className="text-indigo-500 text-sm" />
+                <span>{selectedCategory === "Tất cả" ? "Danh mục" : selectedCategory}</span>
                 {openDropdown === "category" ? (
-                  <div>
-                    <IoIosArrowUp />
-                  </div>
+                  <IoIosArrowUp className="text-slate-400" />
                 ) : (
-                  <div>
-                    <IoIosArrowDown />
-                  </div>
+                  <IoIosArrowDown className="text-slate-400" />
                 )}
               </button>
+
               {openDropdown === "category" && (
-                <div className="flex flex-col p-5 gap-2 absolute top-full mt-2 w-[300px] rounded-xl shadow-lg border border-gray-200 shadow-gray-400 bg-white z-50">
+                <div className="flex flex-col p-2 gap-1 absolute right-0 top-full mt-2 w-[260px] rounded-2xl shadow-xl border border-slate-100 bg-white/95 backdrop-blur-xl z-50 animate-fadeIn">
                   {eventCategories.map((item) => (
                     <div
                       key={item.id}
-                      onClick={() =>
-                        handleChangeSelectedCategory(item.category)
-                      }
-                      className="flex gap-2 items-center text-[14px] p-2 hover:bg-gray-200 transition duration-300 cursor-pointer rounded"
+                      onClick={() => handleChangeSelectedCategory(item.category)}
+                      className={`flex gap-2.5 items-center text-xs font-medium p-2.5 hover:bg-indigo-50 hover:text-indigo-600 transition-colors cursor-pointer rounded-xl ${
+                        selectedCategory === item.category ? "bg-indigo-50 text-indigo-600 font-semibold" : "text-slate-700"
+                      }`}
                     >
-                      <div> {item.icon} </div>
-                      <div> {item.category} </div>
+                      <span className="text-base text-indigo-400">{item.icon}</span>
+                      <span>{item.category}</span>
                     </div>
                   ))}
                 </div>
               )}
             </div>
+
+            {/* Dropdown Thời gian */}
             <div className="relative" ref={timeRef}>
               <button
                 onClick={() => handleToggle("time")}
-                className="flex p-2 gap-2 items-center text-[18px] bg-gray-200 rounded-2xl  cursor-pointer transition focus:bg-amber-200 hover:bg-gray-300 duration-300"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-50 border border-slate-200/80 hover:bg-white text-slate-700 transition-colors shadow-2xs cursor-pointer"
               >
-                <div>
-                  <IoTime />
-                </div>
-                <div>Thời gian</div>
+                <IoTime className="text-pink-500 text-sm" />
+                <span>{selectedTime === "Tất cả" ? "Thời gian" : selectedTime}</span>
                 {openDropdown === "time" ? (
-                  <div>
-                    <IoIosArrowUp />
-                  </div>
+                  <IoIosArrowUp className="text-slate-400" />
                 ) : (
-                  <div>
-                    <IoIosArrowDown />
-                  </div>
+                  <IoIosArrowDown className="text-slate-400" />
                 )}
               </button>
+
               {openDropdown === "time" && (
-                <div className="flex flex-col p-5 gap-2 absolute top-full mt-2 w-[300px] rounded-xl shadow-lg shadow-gray-400 border border-gray-200 bg-white z-50">
+                <div className="flex flex-col p-2 gap-1 absolute right-0 top-full mt-2 w-[200px] rounded-2xl shadow-xl border border-slate-100 bg-white/95 backdrop-blur-xl z-50 animate-fadeIn">
                   {timeCategories.map((item) => (
                     <div
                       key={item.id}
                       onClick={() => handleChangeSelectedTime(item.time)}
-                      className="flex gap-2 items-center text-[14px] p-2 hover:bg-gray-200 transition duration-300 cursor-pointer rounded"
+                      className={`flex gap-2 items-center text-xs font-medium p-2.5 hover:bg-indigo-50 hover:text-indigo-600 transition-colors cursor-pointer rounded-xl ${
+                        selectedTime === item.time ? "bg-indigo-50 text-indigo-600 font-semibold" : "text-slate-700"
+                      }`}
                     >
-                      <div> {item.time} </div>
+                      <span>{item.time}</span>
                     </div>
                   ))}
                 </div>
               )}
             </div>
           </div>
-          {(selectedCategory !== "Tất cả" || selectedTime !== "Tất cả") && (
-            <div className="flex gap-2 mt-3 flex-wrap">
-              {selectedCategory !== "Tất cả" && (
-                <div className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm cursor-pointer hover:bg-blue-200 transition">
-                  {selectedCategory}
-                  <span onClick={() => setSelectedCategory("Tất cả")}>✕</span>
-                </div>
-              )}
-              {selectedTime !== "Tất cả" && (
-                <div className="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm cursor-pointer hover:bg-green-200 transition">
-                  {selectedTime}
-                  <span onClick={() => setSelectedTime("Tất cả")}>✕</span>
-                </div>
-              )}
-            </div>
-          )}
         </div>
-        <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        {/* Filter tags đã chọn */}
+        {(selectedCategory !== "Tất cả" || selectedTime !== "Tất cả") && (
+          <div className="flex gap-2 flex-wrap -mt-2">
+            {selectedCategory !== "Tất cả" && (
+              <span className="flex items-center gap-1.5 px-3 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full text-xs font-semibold">
+                {selectedCategory}
+                <span
+                  onClick={() => setSelectedCategory("Tất cả")}
+                  className="cursor-pointer hover:text-indigo-900 text-xs"
+                >
+                  ✕
+                </span>
+              </span>
+            )}
+            {selectedTime !== "Tất cả" && (
+              <span className="flex items-center gap-1.5 px-3 py-1 bg-pink-50 text-pink-700 border border-pink-100 rounded-full text-xs font-semibold">
+                {selectedTime}
+                <span
+                  onClick={() => setSelectedTime("Tất cả")}
+                  className="cursor-pointer hover:text-pink-900 text-xs"
+                >
+                  ✕
+                </span>
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Lưới Thẻ Sự kiện */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {filteredEvents.length === 0 ? (
-            <p className="font-bold text-2xl">Không có sự kiện nào</p>
+            <div className="col-span-full py-16 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+              <p className="font-bold text-slate-700 text-base">Không có sự kiện nào phù hợp</p>
+              <p className="text-xs text-slate-400 mt-1">Thử điều chỉnh lại bộ lọc danh mục hoặc thời gian.</p>
+            </div>
           ) : (
             filteredEvents
-              .filter(ev => ev)
+              .filter((ev) => ev)
               .map((event) => (
                 <div
                   key={event._id}
                   onClick={() => handleWatchDetail(event._id)}
-                  className="flex flex-col gap-2 p-4 bg-white shadow rounded-lg border border-gray-200 hover:scale-105 hover:bg-gray-200 transition-all duration-300 cursor-pointer"
+                  className="group relative flex flex-col bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer"
                 >
-                  {event?.banner ? (
-                    <img
-                      src={event.banner}
-                      alt={event._id}
-                      className="w-full h-[160px] rounded-xl object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-40 flex items-center justify-center bg-gray-100 text-gray-400 rounded-xl">
-                      Không có ảnh
+                  {/* Banner ảnh kèm Category badge */}
+                  <div className="relative w-full h-[180px] overflow-hidden bg-slate-100">
+                    {event?.banner ? (
+                      <img
+                        src={event.banner}
+                        alt={event.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs font-medium">
+                        Không có ảnh banner
+                      </div>
+                    )}
+
+                    {event?.category && (
+                      <span className="absolute top-3 left-3 bg-slate-900/75 backdrop-blur-md text-white text-[11px] font-semibold px-3 py-1 rounded-full shadow-sm">
+                        {event.category}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Chi tiết thông tin */}
+                  <div className="p-5 flex flex-col flex-1 gap-2.5">
+                    {/* Thời gian */}
+                    <div className="flex items-center gap-2 text-xs font-semibold text-indigo-600 bg-indigo-50/60 px-2.5 py-1 rounded-lg w-fit">
+                      <span>{convertDate(event.startDate)}</span>
+                      <FaArrowRightLong className="text-[10px]" />
+                      <span>{convertDate(event.endDate)}</span>
                     </div>
-                  )}
-                  <div className="flex flex-wrap gap-5 font-bold items-center">
-                    <div>{convertDate(event.startDate)}</div>
-                    <div>
-                      <FaArrowRightLong />
+
+                    {/* Tiêu đề sự kiện */}
+                    <h3 className="font-bold text-base text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                      {event.title}
+                    </h3>
+
+                    {/* Mô tả ngắn */}
+                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                      {event.description}
+                    </p>
+
+                    {/* Địa điểm */}
+                    <div className="text-xs text-slate-400 font-medium truncate mt-1">
+                      📍 {event.location}
                     </div>
-                    <div>{convertDate(event.endDate)}</div>
+
+                    {/* Nút Đăng ký Tham gia */}
+                    <div className="pt-3 mt-auto border-t border-slate-100">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRegisterJoinEvent(event._id);
+                        }}
+                        className="w-full py-2.5 px-4 rounded-xl font-semibold text-xs text-white bg-gradient-to-r from-[#6366F1] to-[#EC4899] shadow-md shadow-indigo-500/20 hover:opacity-95 hover:shadow-lg transition-all cursor-pointer"
+                      >
+                        Đăng ký tham gia
+                      </button>
+                    </div>
                   </div>
-                  <div className="font-bold text-[20px]">{event.title}</div>
-                  <div className="text-[18px]">{event.description}</div>
-                  <div className="text-gray-700 text-[16px]">
-                    {event.location}
-                  </div>
-                  <div className="text-gray-500 text-[14px]">
-                    {event.category}
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRegisterJoinEvent(event._id);
-                    }}
-                    className="p-2 bg-green-500 text-white rounded-2xl mt-auto hover:bg-green-600 transition-all hover:scale-105 duration-300 cursor-pointer"
-                  >
-                    Đăng kí tham gia
-                  </button>
                 </div>
               ))
           )}

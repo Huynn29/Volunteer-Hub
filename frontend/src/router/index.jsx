@@ -31,10 +31,55 @@ import AdminDashboard from "../pages/Admin/AdminDashboard";
 import AdminListEvent from "../pages/Admin/AdminListEvent";
 import AdminListUser from "../pages/Admin/AdminListUser";
 import AdminListPost from "../pages/Admin/AdminListPost";
+import LandingPage from "../pages/LandingPage";
+
+import { jwtDecode } from "jwt-decode";
+
+// Điều hướng thông minh:
+// - Chưa có token -> Mở Landing Page giới thiệu
+// - Có token nhưng là admin -> Chuyển hướng trực tiếp vào /admin/dashboard
+// - Có token (user / manager) -> Mở Bảng tin (Layout + Home)
+const RootRoute = () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return <LandingPage />;
+  }
+
+  try {
+    const decoded = jwtDecode(token);
+    if (decoded.exp && decoded.exp < Date.now() / 1000) {
+      localStorage.removeItem("token");
+      return <LandingPage />;
+    }
+    if (decoded.role === "admin") {
+      window.location.replace("/admin/dashboard");
+      return null;
+    }
+  } catch {
+    localStorage.removeItem("token");
+    return <LandingPage />;
+  }
+
+  return <Layout />;
+};
 
 export const routers = createBrowserRouter([
   {
     path: "/",
+    element: <RootRoute />,
+    children: [
+      {
+        index: true,
+        element: <Home />,
+      },
+    ],
+  },
+  {
+    path: "landing",
+    element: <LandingPage />,
+  },
+  {
+    path: "feed",
     element: <Layout />,
     children: [
       {

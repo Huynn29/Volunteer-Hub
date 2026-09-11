@@ -1,105 +1,247 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { Mail, Lock, Loader2, ArrowRight } from "lucide-react";
+import AuthLayout from "../../components/Auth/AuthLayout";
+import AuthInput from "../../components/Auth/AuthInput";
+import SocialAuthButton from "../../components/Auth/SocialAuthButton";
 import { login } from "../../api/auth.api";
-import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
+
+  // Form State
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
-  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!form.email || !form.password) {
-      toast.error("Vui lòng nhập đầy đủ thông tin");
-      return;
+  const [rememberMe, setRememberMe] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Restore remembered email on mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("volunteerhub_remembered_email");
+    if (savedEmail) {
+      setForm((prev) => ({ ...prev, email: savedEmail }));
+      setRememberMe(true);
+    }
+  }, []);
+
+  // Validation function
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!form.email.trim()) {
+      newErrors.email = "Vui lòng nhập địa chỉ email";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      newErrors.email = "Định dạng email không hợp lệ";
     }
 
-    try {
-      const res = await login(form);
+    if (!form.password) {
+      newErrors.password = "Vui lòng nhập mật khẩu";
+    } else if (form.password.length < 6) {
+      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+    }
 
-      localStorage.setItem("token", res.data.token);
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-      toast.success(res?.message || "Đăng nhập thành công");
-      navigate("/");
-    } catch (error) {
-      toast.error(
-        error?.response?.data?.message || error?.message || "Đăng nhập thất bại"
-      );
+  const handleInputChange = (field, value) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    // Clear inline error on change
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const res = await login({
+        email: form.email.trim(),
+        password: form.password,
+      });
+
+      // Save token
+      if (res?.data?.token) {
+        localStorage.setItem("token", res.data.token);
+      }
+
+      // Handle "Remember Me"
+      if (rememberMe) {
+        localStorage.setItem("volunteerhub_remembered_email", form.email.trim());
+      } else {
+        localStorage.removeItem("volunteerhub_remembered_email");
+      }
+
+      toast.success(res?.message || "Đăng nhập thành công!");
+
+      // Role-based redirection:
+      // Admin -> directly to /admin/dashboard
+      // User / Manager -> to / (Dashboard / Feed)
+      if (res?.data?.user?.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
+    } catch (error) {
+      const errorMsg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin!";
+      toast.error(errorMsg);
+      setErrors((prev) => ({
+        ...prev,
+        general: errorMsg,
+      }));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Google Login Handler (stub / ready for OAuth provider)
+  const handleGoogleLogin = () => {
+    toast("Tính năng đăng nhập Google đang được kết nối!", {
+      icon: "ℹ️",
+    });
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      <div className="w-full max-w-md bg-gray-900/70 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-gray-700">
-        <h2 className="text-3xl font-bold text-white text-center mb-6">
-          Đăng Nhập
-        </h2>
-        <p className="text-gray-400 text-center mb-8">
-          Chào mừng trở lại! Hãy đăng nhập để tiếp tục
-        </p>
+    <AuthLayout>
+      <div className="space-y-6">
+        {/* Header Title & Subtitle */}
+        <div className="space-y-1.5">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white flex items-center gap-2">
+            Chào mừng trở lại <span className="inline-block animate-bounce">👋</span>
+          </h1>
+          <p className="text-sm text-slate-400">
+            Đăng nhập để tiếp tục hành trình tình nguyện của bạn.
+          </p>
+        </div>
 
-        <form className="space-y-5" onSubmit={handleSubmit} autoComplete="on">
-          <div>
-            <label className="block text-sm text-gray-300 mb-2">Email</label>
-            <input
-              type="email"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              placeholder="example@gmail.com"
-              name="username"
-              autoComplete="username"
-              className="w-full px-4 py-3 rounded-xl bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-            />
-          </div>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          {/* Email Input */}
+          <AuthInput
+            id="email"
+            name="email"
+            type="email"
+            label="Email"
+            placeholder="example@gmail.com"
+            value={form.email}
+            onChange={(e) => handleInputChange("email", e.target.value)}
+            error={errors.email}
+            icon={Mail}
+            disabled={isSubmitting}
+            autoComplete="email"
+            required
+          />
 
-          <div>
-            <label className="block text-sm text-gray-300 mb-2">Mật khẩu</label>
-            <input
-              type="password"
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-              placeholder="********"
-              name="password"
-              autoComplete="current-password"
-              className="w-full px-4 py-3 rounded-xl bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-            />
-          </div>
+          {/* Password Input */}
+          <AuthInput
+            id="password"
+            name="password"
+            type="password"
+            label="Mật khẩu"
+            placeholder="••••••••"
+            value={form.password}
+            onChange={(e) => handleInputChange("password", e.target.value)}
+            error={errors.password}
+            icon={Lock}
+            disabled={isSubmitting}
+            autoComplete="current-password"
+            required
+            rightElement={
+              <a
+                href="#forgot-password"
+                onClick={(e) => {
+                  e.preventDefault();
+                  toast("Vui lòng liên hệ ban quản trị để hỗ trợ đặt lại mật khẩu.", {
+                    icon: "🔑",
+                  });
+                }}
+                className="text-xs text-emerald-400 hover:text-emerald-300 hover:underline transition-colors"
+              >
+                Quên mật khẩu?
+              </a>
+            }
+          />
 
-          <div className="flex items-center justify-between text-sm text-gray-400">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" className="accent-indigo-500" />
-              Ghi nhớ tôi
+          {/* Remember Me Checkbox */}
+          <div className="flex items-center justify-between pt-1">
+            <label className="flex items-center gap-2.5 cursor-pointer select-none group">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                disabled={isSubmitting}
+                className="w-4 h-4 rounded border-slate-700 bg-[#0D131B] text-emerald-500 focus:ring-emerald-500/30 focus:ring-offset-0 focus:ring-2 accent-emerald-500 transition-all cursor-pointer"
+              />
+              <span className="text-xs text-slate-300 group-hover:text-slate-200 transition-colors">
+                Ghi nhớ đăng nhập
+              </span>
             </label>
-            <a href="#" className="hover:text-indigo-400 transition">
-              Quên mật khẩu?
-            </a>
           </div>
 
+          {/* Primary Submit Button */}
           <button
             type="submit"
-            className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-lg transition duration-200"
+            disabled={isSubmitting}
+            className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-semibold text-sm shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 active:scale-[0.99] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 group cursor-pointer"
           >
-            Đăng Nhập
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
+                <span>Đang xử lý đăng nhập...</span>
+              </>
+            ) : (
+              <>
+                <span>Đăng nhập</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </>
+            )}
           </button>
         </form>
 
-        <div className="flex items-center my-6">
-          <hr className="flex-grow border-gray-700" />
-          <span className="px-3 text-gray-500 text-sm">Hoặc</span>
-          <hr className="flex-grow border-gray-700" />
+        {/* Divider */}
+        <div className="relative flex items-center justify-center my-4">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-800" />
+          </div>
+          <div className="relative bg-[#101720] px-3 text-xs text-slate-400 uppercase tracking-wider font-medium">
+            Hoặc tiếp tục với
+          </div>
         </div>
 
-        <p className="text-center text-gray-400 mt-6 text-sm">
+        {/* Social Auth (Google) */}
+        <SocialAuthButton
+          onClick={handleGoogleLogin}
+          disabled={isSubmitting}
+          label="Đăng nhập với Google"
+        />
+
+        {/* Switch to Register */}
+        <p className="text-center text-xs text-slate-400 pt-2">
           Chưa có tài khoản?{" "}
-          <a href="register" className="text-indigo-400 hover:underline">
+          <Link
+            to="/register"
+            className="font-medium text-emerald-400 hover:text-emerald-300 hover:underline transition-colors inline-flex items-center gap-0.5"
+          >
             Đăng ký ngay
-          </a>
+          </Link>
         </p>
       </div>
-    </div>
+    </AuthLayout>
   );
 };
 

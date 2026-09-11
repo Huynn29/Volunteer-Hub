@@ -58,150 +58,187 @@ const ManageLayout = () => {
       <ScrollToTop />
       <Header />
 
-      {/* Toggle mobile */}
+      {/* Nút Toggle mobile */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="lg:hidden fixed top-16 right-2 z-50 bg-green-500 p-2 rounded-md shadow"
+        className="lg:hidden fixed bottom-6 left-6 z-50 bg-gradient-to-r from-[#6366F1] to-[#EC4899] text-white p-3 rounded-full shadow-xl hover:scale-105 transition-transform"
+        aria-label="Mở menu quản lý"
       >
         <IoMenu className="text-2xl" />
       </button>
 
-      <div className="bg-gray-200 min-h-screen">
-        <div className="grid grid-cols-1 lg:grid-cols-[20%_70%] text-black gap-4">
+      <div className="bg-slate-100/70 min-h-screen py-6 px-4 lg:px-8">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 items-start">
           {/* Sidebar */}
-          <div
-            className={`fixed lg:static  left-0 h-full bg-white shadow-lg transition-transform duration-300 z-40
-                        ${
-                          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-                        } lg:translate-x-0`}
+          <aside
+            className={`fixed lg:static top-20 left-4 h-auto max-h-[85vh] lg:max-h-none overflow-y-auto w-[280px] bg-white rounded-2xl border border-slate-200/80 shadow-lg lg:shadow-xs p-4 transition-all duration-300 z-40 ${
+              sidebarOpen ? "translate-x-0" : "-translate-x-[320px] lg:translate-x-0"
+            }`}
           >
-            <div className="font-bold text-2xl pl-4 mt-2">Quản lí sự kiện</div>
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3 px-1">
+              <span className="font-extrabold text-lg text-slate-900">Quản lý sự kiện</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-pink-50 text-pink-600 border border-pink-100">
+                Manager
+              </span>
+            </div>
 
             {/* Tìm kiếm */}
-            <div className="relative w-full max-w-sm p-4 items-center">
-              <FaSearch className="absolute left-7 top-1/2 -translate-y-1/2 text-gray-400" />
+            <div className="relative w-full mb-3">
+              <FaSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs" />
               <input
                 type="text"
-                placeholder="Tìm kiếm"
+                placeholder="Tìm kiếm sự kiện quản lý..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 p-2 border rounded-2xl focus:outline-none bg-gray-200"
+                className="w-full bg-slate-50 pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200/80 text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:border-transparent outline-none transition-all"
               />
             </div>
 
-            {/* Link sidebar */}
+            {/* Nút Tạo sự kiện mới */}
             <NavLink
               onClick={handleLinkClick}
               to="/manage/create"
               className={({ isActive }) =>
-                `flex items-center ml-1 mr-1 justify-between p-4 rounded gap-2 hover:bg-gray-200 transition-all duration-300 cursor-pointer ${
-                  isActive ? "bg-gray-200" : ""
+                `flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-semibold shadow-md shadow-indigo-500/20 transition-all cursor-pointer mb-2.5 ${
+                  isActive
+                    ? "bg-slate-900 text-white"
+                    : "bg-gradient-to-r from-[#6366F1] to-[#EC4899] text-white hover:opacity-95"
                 }`
               }
             >
-              <div className="flex items-center gap-2">
-                <IoCreate className="text-[20px] text-red-500" />
-                <div className="text-[18px]">Tạo sự kiện mới</div>
-              </div>
+              <IoCreate className="text-base" />
+              <span>+ Tạo sự kiện mới</span>
             </NavLink>
 
+            {/* Link Bài viết chờ duyệt */}
             <NavLink
               onClick={handleLinkClick}
               to="/manage/post"
               className={({ isActive }) =>
-                `flex items-center ml-1 mr-1 justify-between p-4 rounded gap-2 hover:bg-gray-200 transition-all duration-300 cursor-pointer ${
-                  isActive ? "bg-gray-200" : ""
+                `flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer mb-1 ${
+                  isActive
+                    ? "bg-indigo-50 text-indigo-600 font-semibold"
+                    : "text-slate-700 hover:bg-slate-100"
                 }`
               }
             >
-              <div className="flex items-center gap-2">
-                <FaHourglassHalf className="text-[20px] text-sky-500" />
-                <div className="text-[18px]">Bài viết chờ duyệt</div>
-              </div>
+              <FaHourglassHalf className="text-sky-500 text-sm" />
+              <span>Bài viết chờ duyệt</span>
             </NavLink>
 
+            {/* Link Người dùng chờ duyệt */}
             <NavLink
               onClick={handleLinkClick}
               to="/manage/user"
               className={({ isActive }) =>
-                `flex items-center ml-1 mr-1 justify-between p-4 rounded gap-2 hover:bg-gray-200 transition-all duration-300 cursor-pointer ${
-                  isActive ? "bg-gray-200" : ""
+                `flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer mb-2 ${
+                  isActive
+                    ? "bg-indigo-50 text-indigo-600 font-semibold"
+                    : "text-slate-700 hover:bg-slate-100"
                 }`
               }
             >
-              <div className="flex items-center gap-2">
-                <FaHourglassHalf className="text-[20px] text-amber-500" />
-                <div className="text-[18px]">Người dùng chờ duyệt</div>
-              </div>
+              <FaHourglassHalf className="text-amber-500 text-sm" />
+              <span>Người dùng chờ duyệt</span>
             </NavLink>
 
-            {/* Sự kiện của bạn */}
-            <div className="cursor-pointer">
+            {/* Mục: Sự kiện do bạn tạo */}
+            <div className="pt-2 border-t border-slate-100">
               <div
                 onClick={() => setIsOpenYourEvent(!isOpenYourEvent)}
-                className="flex items-center justify-between ml-1 mr-1 p-4 rounded gap-2 hover:bg-gray-200 duration-300 cursor-pointer"
+                className="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-slate-50 text-xs font-bold uppercase tracking-wider text-slate-500 cursor-pointer transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <FaUser className="text-[20px] text-gray-500" />
-                  <div className="text-[18px]">Sự kiện của bạn</div>
+                  <FaUser className="text-indigo-400" />
+                  <span>Sự kiện của bạn</span>
                 </div>
                 {isOpenYourEvent ? (
-                  <IoIosArrowUp className="text-[20px]" />
+                  <IoIosArrowUp className="text-sm" />
                 ) : (
-                  <IoIosArrowDown className="text-[20px]" />
+                  <IoIosArrowDown className="text-sm" />
                 )}
               </div>
 
               {isOpenYourEvent && (
-                <div className="flex flex-col">
+                <div className="flex flex-col gap-1 mt-1 pl-2">
                   <NavLink
                     onClick={handleLinkClick}
                     to="approved"
-                    className="flex items-center ml-5 mr-1 p-4 rounded gap-2 hover:bg-gray-200"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                        isActive
+                          ? "bg-emerald-50 text-emerald-700 font-semibold"
+                          : "text-slate-600 hover:bg-slate-100"
+                      }`
+                    }
                   >
-                    <FaCheckCircle className="text-green-500 text-[20px]" />
-                    <div className="text-[16px]">Đã được duyệt</div>
+                    <FaCheckCircle className="text-emerald-500 text-sm" />
+                    <span>Đã được duyệt</span>
                   </NavLink>
+
                   <NavLink
                     onClick={handleLinkClick}
                     to="pending"
-                    className="flex items-center ml-5 mr-1 p-4 rounded gap-2 hover:bg-gray-200"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                        isActive
+                          ? "bg-amber-50 text-amber-700 font-semibold"
+                          : "text-slate-600 hover:bg-slate-100"
+                      }`
+                    }
                   >
-                    <FaHourglassHalf className="text-yellow-500 text-[20px]" />
-                    <div className="text-[16px]">Chờ duyệt</div>
+                    <FaHourglassHalf className="text-yellow-500 text-sm" />
+                    <span>Chờ duyệt</span>
                   </NavLink>
+
                   <NavLink
                     onClick={handleLinkClick}
                     to="rejected"
-                    className="flex items-center ml-5 mr-1 p-4 rounded gap-2 hover:bg-gray-200"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                        isActive
+                          ? "bg-rose-50 text-rose-700 font-semibold"
+                          : "text-slate-600 hover:bg-slate-100"
+                      }`
+                    }
                   >
-                    <MdCancel className="text-red-500 text-[20px]" />
-                    <div className="text-[16px]">Bị từ chối</div>
+                    <MdCancel className="text-rose-500 text-sm" />
+                    <span>Bị từ chối</span>
                   </NavLink>
+
                   <NavLink
                     onClick={handleLinkClick}
                     to="completed"
-                    className="flex items-center ml-5 mr-1 p-4 rounded gap-2 hover:bg-gray-200"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                        isActive
+                          ? "bg-sky-50 text-sky-700 font-semibold"
+                          : "text-slate-600 hover:bg-slate-100"
+                      }`
+                    }
                   >
-                    <FaRegCalendarCheck className="text-blue-500 text-[20px]" />
-                    <div className="text-[16px]">Hoàn thành</div>
+                    <FaRegCalendarCheck className="text-blue-500 text-sm" />
+                    <span>Hoàn thành</span>
                   </NavLink>
                 </div>
               )}
             </div>
-          </div>
+          </aside>
 
-          {/* Nội dung chính */}
-          <div className="bg-white p-5 m-5 mr-15 rounded-2xl min-h-screen relative ">
+          {/* Khung Nội dung Quản lý */}
+          <main className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-xs min-h-[85vh] relative w-full min-w-0">
             <Outlet context={{ events: filteredEvents, loading }} />
-            <button
-              onClick={handleScrollToTop}
-              className="hidden lg:block fixed bottom-5 right-5 text-[25px] border rounded-full p-2 z-50 hover:bg-white transition duration-300 cursor-pointer"
-            >
-              <FaArrowUp />
-            </button>
-          </div>
+          </main>
         </div>
+
+        {/* Nút Cuộn lên đầu */}
+        <button
+          onClick={handleScrollToTop}
+          className="hidden lg:flex items-center justify-center w-11 h-11 fixed bottom-6 right-6 text-slate-600 bg-white shadow-xl border border-slate-200 rounded-full hover:bg-indigo-600 hover:text-white hover:scale-110 transition-all duration-200 cursor-pointer z-50"
+          aria-label="Cuộn lên đầu"
+        >
+          <FaArrowUp />
+        </button>
       </div>
     </>
   );

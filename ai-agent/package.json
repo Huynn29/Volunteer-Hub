@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google/genai": "^2.21.0",
+    "@huggingface/inference": "^4.13.28",
     "axios": "^1.19.0",
     "cloudinary": "^2.10.0",
     "cors": "^2.8.6",
