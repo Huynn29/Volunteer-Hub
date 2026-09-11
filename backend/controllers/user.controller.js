@@ -151,11 +151,13 @@ const changePassword = async (req, res) => {
         .json({ success: false, message: "Mật khẩu xác nhận không trùng khớp." });
     }
 
-    const isMatch = await bcrypt.compare(oldPassword, user.password);
-    if (!isMatch) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Mật khẩu cũ không chính xác." });
+    if (user.password) {
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+      if (!isMatch) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Mật khẩu cũ không chính xác." });
+      }
     }
 
     user.password = await bcrypt.hash(newPassword, 10);

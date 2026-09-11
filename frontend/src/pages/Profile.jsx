@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Header from "../components/Header";
-import { FaUser } from "react-icons/fa";
+import { FaUser, FaCrown } from "react-icons/fa";
 import { IoMdSettings } from "react-icons/io";
 import { MdEdit, MdCancel } from "react-icons/md";
 import { FaSave } from "react-icons/fa";
@@ -209,7 +210,25 @@ const Profile = () => {
                 }}
                 className="flex flex-col gap-5"
               >
-                <div className="font-bold text-3xl">Thông tin tài khoản</div>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-100">
+                  <div className="font-bold text-3xl flex items-center gap-3">
+                    <span>Thông tin tài khoản</span>
+                    {user?.role === "admin" && (
+                      <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-600 border border-amber-200 inline-flex items-center gap-1">
+                        <FaCrown className="text-amber-500" /> Admin
+                      </span>
+                    )}
+                  </div>
+                  {user?.role === "admin" && (
+                    <Link
+                      to="/admin/dashboard"
+                      className="text-xs font-semibold text-amber-700 hover:text-amber-800 bg-amber-100/70 hover:bg-amber-100 border border-amber-300 px-3 py-1.5 rounded-xl transition-colors inline-flex items-center gap-1.5 w-fit shadow-xs"
+                    >
+                      <FaCrown className="text-amber-600 text-xs" />
+                      <span>Quay lại Admin Panel</span>
+                    </Link>
+                  )}
+                </div>
 
                 {/* Thông tin cơ bản */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

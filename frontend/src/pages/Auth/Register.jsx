@@ -5,6 +5,8 @@ import { User, Mail, Lock, Loader2, ArrowRight, CheckCircle2 } from "lucide-reac
 import AuthLayout from "../../components/Auth/AuthLayout";
 import AuthInput from "../../components/Auth/AuthInput";
 import SocialAuthButton from "../../components/Auth/SocialAuthButton";
+import GoogleAuthModal from "../../components/Auth/GoogleAuthModal";
+import { triggerGoogleAuth } from "../../utils/googleAuth";
 import { register } from "../../api/auth.api";
 
 const Register = () => {
@@ -21,6 +23,7 @@ const Register = () => {
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
 
   // Validation function
   const validateForm = () => {
@@ -98,9 +101,23 @@ const Register = () => {
     }
   };
 
+  const handleGoogleAuthSuccess = (data) => {
+    if (data?.token) {
+      localStorage.setItem("token", data.token);
+    }
+    toast.success(data?.message || "Đăng nhập Google thành công!");
+    if (data?.user?.role === "admin") {
+      navigate("/admin/dashboard");
+    } else {
+      navigate("/");
+    }
+  };
+
   const handleGoogleRegister = () => {
-    toast("Tính năng đăng ký nhanh với Google đang được kết nối!", {
-      icon: "ℹ️",
+    triggerGoogleAuth({
+      onSuccess: handleGoogleAuthSuccess,
+      onError: (errMsg) => toast.error(errMsg),
+      onRequiresConfig: () => setIsGoogleModalOpen(true),
     });
   };
 
@@ -282,6 +299,12 @@ const Register = () => {
           </Link>
         </p>
       </div>
+
+      <GoogleAuthModal
+        isOpen={isGoogleModalOpen}
+        onClose={() => setIsGoogleModalOpen(false)}
+        onSuccess={handleGoogleAuthSuccess}
+      />
     </AuthLayout>
   );
 };

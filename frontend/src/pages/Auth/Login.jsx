@@ -5,6 +5,8 @@ import { Mail, Lock, Loader2, ArrowRight } from "lucide-react";
 import AuthLayout from "../../components/Auth/AuthLayout";
 import AuthInput from "../../components/Auth/AuthInput";
 import SocialAuthButton from "../../components/Auth/SocialAuthButton";
+import GoogleAuthModal from "../../components/Auth/GoogleAuthModal";
+import { triggerGoogleAuth } from "../../utils/googleAuth";
 import { login } from "../../api/auth.api";
 
 const Login = () => {
@@ -19,6 +21,7 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
 
   // Restore remembered email on mount
   useEffect(() => {
@@ -109,10 +112,24 @@ const Login = () => {
     }
   };
 
-  // Google Login Handler (stub / ready for OAuth provider)
+  const handleGoogleAuthSuccess = (data) => {
+    if (data?.token) {
+      localStorage.setItem("token", data.token);
+    }
+    toast.success(data?.message || "Đăng nhập Google thành công!");
+    if (data?.user?.role === "admin") {
+      navigate("/admin/dashboard");
+    } else {
+      navigate("/");
+    }
+  };
+
+  // Google Login Handler
   const handleGoogleLogin = () => {
-    toast("Tính năng đăng nhập Google đang được kết nối!", {
-      icon: "ℹ️",
+    triggerGoogleAuth({
+      onSuccess: handleGoogleAuthSuccess,
+      onError: (errMsg) => toast.error(errMsg),
+      onRequiresConfig: () => setIsGoogleModalOpen(true),
     });
   };
 
@@ -241,6 +258,12 @@ const Login = () => {
           </Link>
         </p>
       </div>
+
+      <GoogleAuthModal
+        isOpen={isGoogleModalOpen}
+        onClose={() => setIsGoogleModalOpen(false)}
+        onSuccess={handleGoogleAuthSuccess}
+      />
     </AuthLayout>
   );
 };

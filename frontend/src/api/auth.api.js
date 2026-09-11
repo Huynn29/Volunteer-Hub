@@ -10,7 +10,11 @@ export const login = (data) => {
 
 export const register = (data) => {
     return axios.post(`${BASE_URL}/register`, data);
-}
+};
+
+export const googleLogin = (data) => {
+    return axios.post(`${BASE_URL}/google`, data);
+};
 
 export const logout = () => {
   localStorage.removeItem("token");

@@ -14,6 +14,7 @@ import { getNotificationsById, markAsRead } from "../api/notification.api";
 import toast from "react-hot-toast";
 import { socket } from "../socket/index";
 import { getProfileUser } from "../api/user.api";
+import { jwtDecode } from "jwt-decode";
 
 const navItems = [
   { path: "/", label: "Dashboard", icon: <FaHome /> },
@@ -27,6 +28,21 @@ const Header = () => {
   const [notificationRead, setNotificationRead] = useState([]);
   const [user, setUser] = useState();
   const navigate = useNavigate();
+
+  // Instant role check from localStorage token to prevent layout shift
+  const tokenRole = (() => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return null;
+      return jwtDecode(token)?.role || null;
+    } catch {
+      return null;
+    }
+  })();
+
+  const currentRole = user?.role || tokenRole;
+  const isAdmin = currentRole === "admin";
+  const isManager = currentRole === "manager";
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -137,7 +153,7 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full flex justify-between items-center bg-white/90 backdrop-blur-xl text-slate-800 border-b border-slate-200/80 shadow-xs py-2.5 px-4 lg:px-8">
       {/* Brand Logo */}
       <Link
-        to="/"
+        to={isAdmin ? "/admin/dashboard" : "/"}
         className="flex items-center gap-3 cursor-pointer group"
       >
         <div
@@ -151,41 +167,7 @@ const Header = () => {
 
       {/* Desktop Navigation */}
       <div className="hidden md:flex items-center gap-2">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) =>
-              `flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
-                isActive
-                  ? "bg-indigo-50 text-indigo-600 font-semibold shadow-xs"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-              }`
-            }
-          >
-            <span className="text-base">{item.icon}</span>
-            <span>{item.label}</span>
-          </NavLink>
-        ))}
-
-        {(user?.role === "manager" || user?.role === "admin") && (
-          <NavLink
-            key="/manage"
-            to="/manage/approved"
-            className={({ isActive }) =>
-              `flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
-                isActive
-                  ? "bg-indigo-50 text-indigo-600 font-semibold shadow-xs"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-              }`
-            }
-          >
-            <BiEdit className="text-base text-indigo-500" />
-            <span>Quản lý</span>
-          </NavLink>
-        )}
-
-        {user?.role === "admin" && (
+        {isAdmin ? (
           <NavLink
             key="/admin"
             to="/admin/dashboard"
@@ -200,6 +182,42 @@ const Header = () => {
             <FaCrown className="text-amber-500 text-base" />
             <span>Admin</span>
           </NavLink>
+        ) : (
+          <>
+            {navItems.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) =>
+                  `flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
+                    isActive
+                      ? "bg-indigo-50 text-indigo-600 font-semibold shadow-xs"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                  }`
+                }
+              >
+                <span className="text-base">{item.icon}</span>
+                <span>{item.label}</span>
+              </NavLink>
+            ))}
+
+            {isManager && (
+              <NavLink
+                key="/manage"
+                to="/manage/approved"
+                className={({ isActive }) =>
+                  `flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
+                    isActive
+                      ? "bg-indigo-50 text-indigo-600 font-semibold shadow-xs"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                  }`
+                }
+              >
+                <BiEdit className="text-base text-indigo-500" />
+                <span>Quản lý</span>
+              </NavLink>
+            )}
+          </>
         )}
       </div>
 
@@ -216,31 +234,7 @@ const Header = () => {
         {/* Mobile Dropdown Menu */}
         {openDropdown === "menu" && (
           <div className="absolute top-full right-0 mt-3 w-56 bg-white/95 backdrop-blur-xl shadow-2xl border border-slate-100 p-2.5 rounded-2xl z-50 animate-fadeIn">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                onClick={() => setOpenDropdown(null)}
-                className="flex items-center gap-2.5 py-2.5 px-3 hover:bg-slate-100 rounded-xl text-sm font-medium text-slate-700"
-              >
-                <span>{item.icon}</span>
-                <span>{item.label}</span>
-              </NavLink>
-            ))}
-
-            {(user?.role === "manager" || user?.role === "admin") && (
-              <NavLink
-                key="/manage/approved"
-                to="/manage/approved"
-                onClick={() => setOpenDropdown(null)}
-                className="flex items-center gap-2.5 py-2.5 px-3 hover:bg-slate-100 rounded-xl text-sm font-medium text-slate-700"
-              >
-                <BiEdit className="text-indigo-500" />
-                <span>Quản lý</span>
-              </NavLink>
-            )}
-
-            {user?.role === "admin" && (
+            {isAdmin ? (
               <NavLink
                 key="/admin"
                 to="/admin/dashboard"
@@ -250,6 +244,32 @@ const Header = () => {
                 <FaCrown className="text-amber-500" />
                 <span>Admin</span>
               </NavLink>
+            ) : (
+              <>
+                {navItems.map((item) => (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setOpenDropdown(null)}
+                    className="flex items-center gap-2.5 py-2.5 px-3 hover:bg-slate-100 rounded-xl text-sm font-medium text-slate-700"
+                  >
+                    <span>{item.icon}</span>
+                    <span>{item.label}</span>
+                  </NavLink>
+                ))}
+
+                {isManager && (
+                  <NavLink
+                    key="/manage/approved"
+                    to="/manage/approved"
+                    onClick={() => setOpenDropdown(null)}
+                    className="flex items-center gap-2.5 py-2.5 px-3 hover:bg-slate-100 rounded-xl text-sm font-medium text-slate-700"
+                  >
+                    <BiEdit className="text-indigo-500" />
+                    <span>Quản lý</span>
+                  </NavLink>
+                )}
+              </>
             )}
           </div>
         )}
