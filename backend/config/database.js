@@ -10,6 +10,6 @@ const connectDatabase = async () => {
     }
 };
 
-console.log("MONGO_URI:", process.env.MONGO_URI);
+console.log("MONGO_URL:", process.env.MONGO_URL);
 
 module.exports = connectDatabase;
