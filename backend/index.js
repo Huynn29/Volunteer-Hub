@@ -33,6 +33,13 @@ app.use(
   })
 );
 
+app.get("/test", (req, res) => {
+  res.json({
+    success: true,
+    message: "Backend is working"
+  });
+});
+
 app.use(express.json());
 app.use(morgan("dev"));
 routers(app);
