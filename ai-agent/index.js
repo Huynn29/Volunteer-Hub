@@ -241,9 +241,9 @@ REQUIREMENTS:
     console.log("========================================");
 
     const image = await hf.textToImage({
-        model: "black-forest-labs/FLUX.1-schnell",
-        inputs: imagePrompt,
-        provider: "auto",
+      model: "black-forest-labs/FLUX.1-schnell",
+      inputs: imagePrompt,
+      provider: "auto",
     });
 
     // ========================================================
@@ -393,6 +393,6 @@ app.listen(8000, () => {
   console.log("========================================");
   console.log("VolunteerHub Gemini AI Server");
   console.log("========================================");
-  console.log("Server running: http://localhost:8000");
+  console.log("Server running: https://volunteer-hub-ai.onrender.com");
   console.log("========================================");
 });

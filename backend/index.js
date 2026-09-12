@@ -16,8 +16,8 @@ connectDatabase();
 app.use(
   cors({
     origin: [
-    "http://localhost:5173",
-    "https://volunteer-hub-uet-kdqb.vercel.app"
+      "http://localhost:5173",
+      "https://volunteer-hub-seven.vercel.app"
     ]
   })
 );
@@ -29,8 +29,8 @@ routers(app);
 const io = new Server(server, {
   cors: {
     origin: [
-    "http://localhost:5173",
-    "https://volunteer-hub-uet-kdqb.vercel.app"
+      "http://localhost:5173",
+      "https://volunteer-hub-seven.vercel.app"
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
   },
