@@ -12,4 +12,10 @@ const connectDatabase = async () => {
 
 console.log("MONGO_URL:", process.env.MONGO_URL);
 
+mongoose.connection.once("open", () => {
+    console.log("✅ MongoDB connected");
+    console.log("DATABASE:", mongoose.connection.name);
+    console.log("HOST:", mongoose.connection.host);
+});
+
 module.exports = connectDatabase;
